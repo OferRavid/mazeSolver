@@ -13,11 +13,24 @@ class Line:
         self.p2 = p2
     
     def draw(self, canvas: Canvas, fill_color="black"):
+        x1 = self.p1.x
+        y1 = self.p1.y
+        x2 = self.p2.x
+        y2 = self.p2.y
+        if fill_color == "white":
+            if x1 != x2:
+                width = x2 - x1
+                x1 += width * 0.02
+                x2 -= width * 0.02
+            else:
+                height = y2 - y1
+                y1 += height * 0.02
+                y2 -= height * 0.02
         canvas.create_line(
-            self.p1.x, 
-            self.p1.y, 
-            self.p2.x, 
-            self.p2.y,
+            x1, 
+            y1, 
+            x2, 
+            y2,
             fill=fill_color,
             width=2
         )

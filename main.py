@@ -5,7 +5,7 @@ import random
 
 def main():
     win = Window(800, 600)
-    maze = Maze(50, 50, 5, 7, 100, 100, win)
+    maze = Maze(50, 50, 5, 7, 100, 100, win, 10)
 
     win.wait_for_close()
 
