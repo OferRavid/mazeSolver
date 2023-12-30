@@ -1,4 +1,4 @@
-from tkinter import Tk, BOTH, Canvas
+from tkinter import BOTTOM, LEFT, Entry, Frame, Label, StringVar, Tk, BOTH, Canvas, Button
 
 
 class Point:
@@ -41,10 +41,16 @@ class Window:
     def __init__(self, width, height):
         self.__root = Tk()
         self.__root.title("Maze Solver")
-        self.__canvas = Canvas(self.__root, bg="white", height = height, width = width)
+        self.width = width
+        self.height = height
+        self.__canvas = Canvas(self.__root, bg="white", height = self.height, width = self.width)
         self.__canvas.pack(fill=BOTH, expand=1)
         self.__running = False
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
+        self.__bottom = Frame(self.__root)
+        self.__bottom2 = Frame(self.__root)
+        self.__bottom2.pack(side=BOTTOM, fill=BOTH, expand=True)
+        self.__bottom.pack(side=BOTTOM, fill=BOTH, expand=True)
     
     def redraw(self):
         self.__root.update_idletasks()
@@ -61,5 +67,15 @@ class Window:
     
     def close(self):
         self.__running = False
-
-
+    
+    def clear_canvas(self):
+        self.__canvas.delete("all")
+    
+    def get_root(self):
+        return self.__root
+    
+    def get_bottom_frame(self):
+        return self.__bottom
+    
+    def get_bottom2_frame(self):
+        return self.__bottom2

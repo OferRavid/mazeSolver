@@ -1,12 +1,9 @@
-from graphics import Point, Line, Window
-from cell import Cell
+from graphics import Window
 from maze import Maze
-import random
 
 def main():
-    win = Window(800, 600)
-    maze = Maze(50, 50, 5, 7, 100, 100, win, 10)
-    maze.solve()
+    win = Window(1000, 900)
+    maze = Maze(50, 50, win=win)
     win.wait_for_close()
 
 

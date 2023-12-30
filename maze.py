@@ -1,5 +1,6 @@
 import random
 from time import sleep
+from tkinter import RIGHT
 from graphics import *
 from cell import Cell
 
@@ -9,10 +10,10 @@ class Maze:
         self,
         x1,
         y1,
-        num_rows,
-        num_cols,
-        cell_size_x,
-        cell_size_y,
+        num_rows=None,
+        num_cols=None,
+        cell_size_x=None,
+        cell_size_y=None,
         win: Window = None,
         seed = None
     ):
@@ -26,10 +27,45 @@ class Maze:
         self._win = win
         if seed:
             random.seed(seed)
+        if num_rows and num_cols:
+            if not cell_size_x:
+                self._cell_size_x = (self._win.width - 2 * self._x1) / num_cols
+            if not cell_size_y:
+                self._cell_size_y = (self._win.height - 2 * self._y1) / num_rows
+            self._create_cells()
+            self._break_entrance_and_exit()
+            self._break_walls_r(0, 0)
+        
+        self.enter_num_cols = StringVar()
+        self.enter_num_rows = StringVar()
+        cols_entry = Entry(self._win.get_root(),textvariable=self.enter_num_cols,font=("Source code Pro",12,'bold'),width=10)
+        cols_l = Label(self._win.get_root(),text="Number of Columns:")
+        rows_entry = Entry(self._win.get_root(),textvariable=self.enter_num_rows,font=("Source code Pro",12,'bold'),width=10)
+        rows_l = Label(self._win.get_root(),text="Number of Rows:")
+        cols_l.pack(in_=self._win.get_bottom_frame(),side=LEFT)
+        cols_entry.pack(in_=self._win.get_bottom_frame(), side=LEFT)
+        rows_l.pack(in_=self._win.get_bottom_frame(),side=LEFT)
+        rows_entry.pack(in_=self._win.get_bottom_frame(), side=LEFT)
+        b = Button(self._win.get_root(), text="Create Maze", width=10, height=2, command=self.create_maze)
+        b.pack(in_=self._win.get_bottom_frame(), side=LEFT)
+        solve_button = Button(self._win.get_root(), text="Solve", width=6, height=2, command=self.solve)
+        solve_button.pack(in_=self._win.get_bottom_frame(), side=RIGHT)
+        clear_button = Button(self._win.get_root(), text="Clear", width=6, height=2, command=self._win.clear_canvas)
+        clear_button.pack(in_=self._win.get_bottom2_frame(), side=RIGHT)
+
+    def create_maze(self):
+        if self._cells:
+            self._win.clear_canvas()
+            self._cells = []
+        num_cols = int(self.enter_num_cols.get())
+        num_rows = int(self.enter_num_rows.get())
+        self._cell_size_x = (self._win.width - 2 * self._x1) / num_cols
+        self._cell_size_y = (self._win.height - 2 * self._y1) / num_rows
+        self._num_cols = num_cols
+        self._num_rows = num_rows
         self._create_cells()
         self._break_entrance_and_exit()
         self._break_walls_r(0, 0)
-        # self._reset_cells_visited()
 
     def _create_cells(self):
         for i in range(self._num_rows):
@@ -123,7 +159,7 @@ class Maze:
         return False
     
     def _solve_r(self, i, j):
-        self._animate(0.3)
+        self._animate()
         current = self._cells[i][j]
         current.visited = True
         if i == self._num_rows - 1 and j == self._num_cols - 1:
