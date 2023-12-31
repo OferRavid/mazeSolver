@@ -36,22 +36,29 @@ class Maze:
             self._break_entrance_and_exit()
             self._break_walls_r(0, 0)
         
-        self.enter_num_cols = StringVar()
-        self.enter_num_rows = StringVar()
-        cols_entry = Entry(self._win.get_root(),textvariable=self.enter_num_cols,font=("Source code Pro",12,'bold'),width=10)
-        cols_l = Label(self._win.get_root(),text="Number of Columns:")
-        rows_entry = Entry(self._win.get_root(),textvariable=self.enter_num_rows,font=("Source code Pro",12,'bold'),width=10)
-        rows_l = Label(self._win.get_root(),text="Number of Rows:")
-        cols_l.pack(in_=self._win.get_bottom_frame(),side=LEFT)
-        cols_entry.pack(in_=self._win.get_bottom_frame(), side=LEFT)
-        rows_l.pack(in_=self._win.get_bottom_frame(),side=LEFT)
-        rows_entry.pack(in_=self._win.get_bottom_frame(), side=LEFT)
-        b = Button(self._win.get_root(), text="Create Maze", width=10, height=2, command=self.create_maze)
-        b.pack(in_=self._win.get_bottom_frame(), side=LEFT)
-        solve_button = Button(self._win.get_root(), text="Solve", width=6, height=2, command=self.solve)
-        solve_button.pack(in_=self._win.get_bottom_frame(), side=RIGHT)
-        clear_button = Button(self._win.get_root(), text="Clear", width=6, height=2, command=self._win.clear_canvas)
-        clear_button.pack(in_=self._win.get_bottom2_frame(), side=RIGHT)
+        if self._win:
+            self.enter_num_cols = StringVar()
+            self.enter_num_rows = StringVar()
+            l = Label(self._win.get_root(),text="Choose number of columns and rows between 1 and 45!")
+            cols_entry = Entry(self._win.get_root(),textvariable=self.enter_num_cols,font=("Source code Pro",12,'bold'),width=10)
+            cols_l = Label(self._win.get_root(),text="Number of Columns:")
+            rows_entry = Entry(self._win.get_root(),textvariable=self.enter_num_rows,font=("Source code Pro",12,'bold'),width=10)
+            rows_l = Label(self._win.get_root(),text="Number of Rows:")
+            cols_l.pack(in_=self._win.get_bottom_frame(),side=LEFT)
+            cols_entry.pack(in_=self._win.get_bottom_frame(), side=LEFT)
+            rows_l.pack(in_=self._win.get_bottom_frame(),side=LEFT)
+            rows_entry.pack(in_=self._win.get_bottom_frame(), side=LEFT)
+            b = Button(self._win.get_root(), text="Create Maze", width=10, height=2, command=self.create_maze)
+            b.pack(in_=self._win.get_bottom_frame(), side=LEFT)
+            solve_button = Button(self._win.get_root(), text="Solve with DFS", width=10, height=2, command=self.dfs_solve)
+            solve_button.pack(in_=self._win.get_bottom_frame(), side=RIGHT)
+            solve_button = Button(self._win.get_root(), text="Solve with Dead-End", width=15, height=2, command=self.dead_end_solve)
+            solve_button.pack(in_=self._win.get_bottom_frame(), side=RIGHT)
+            exit_button = Button(self._win.get_root(), text="Exit", width=4, height=2, command=self._win.close)
+            exit_button.pack(in_=self._win.get_bottom2_frame(), side=RIGHT)
+            clear_button = Button(self._win.get_root(), text="Clear", width=6, height=2, command=self._win.clear_canvas)
+            clear_button.pack(in_=self._win.get_bottom2_frame(), side=RIGHT)
+            l.pack(in_=self._win.get_bottom2_frame(), side=LEFT)
 
     def create_maze(self):
         if self._cells:
@@ -84,7 +91,7 @@ class Maze:
         y1 = self._y1 + i * self._cell_size_y
         y2 = y1 + self._cell_size_y
         cell.draw(x1, y1, x2, y2)
-        self._animate()
+        self._animate(0)
     
     def _break_entrance_and_exit(self):
         self._cells[0][0].has_top_wall = False
@@ -144,31 +151,17 @@ class Maze:
         if j > jdx:
             return c2.has_right_wall or c1.has_left_wall
 
-    def solve(self):
+    def dfs_solve(self):
         self._reset_cells_visited()
-        start = Line(
-            Point(self._x1 + self._cell_size_x / 2, self._y1),
-            Point(self._x1 + self._cell_size_x / 2, self._y1 + self._cell_size_y / 2)
-        )
-        # Draw starting line
-        self._win.draw_line(start, "red")
-        if self._solve_r(i=0, j=0):
+        if self._solve_r(0, 0):
             return True
-        # If the maze is unsolvable, we undo this line as well
-        self._win.draw_line(start, "grey")
         return False
     
     def _solve_r(self, i, j):
-        self._animate()
+        self._animate(0.02)
         current = self._cells[i][j]
         current.visited = True
         if i == self._num_rows - 1 and j == self._num_cols - 1:
-            # Draw finishing line
-            self._win.draw_line(
-                Line(
-                    Point(self._x1 + self._cell_size_x * (self._num_cols - 0.5), self._y1 + self._cell_size_y * (self._num_rows - 0.5)),
-                    Point(self._x1 + self._cell_size_x * (self._num_cols - 0.5), self._y1 + self._cell_size_y * self._num_rows)
-                ), fill_color="red")
             return True
         directions = [(-1, 0), (0, -1), (1, 0), (0, 1)]
         for direction in directions:
@@ -185,8 +178,42 @@ class Maze:
                 if self._solve_r(next_i, next_j):
                     return True
                 next_cell.draw_move(current, undo=True)
-                self._animate(0.3)
+                self._animate(0.15)
         return False
+    
+    def dead_end_solve(self):
+        self._reset_cells_visited()
+        dead_ends = float("inf")
+        while dead_ends > 0:
+            dead_ends = 0
+            for i in range(self._num_rows):
+                for j in range(self._num_cols):
+                    cell = self._cells[i][j]
+                    if cell.is_dead_end():
+                        dead_ends += 1
+                        self._handle_neighbor(i, j)
+                        cell.close_walls()
+                        if self._win:
+                            self._win.draw_rectangle(cell._x1, cell._y1, cell._x2, cell._y2)
+                        self._draw_cell(i, j)
+        if self._solve_r(0, 0):
+            return True
+        return False
+    
+    def _handle_neighbor(self, i, j):
+        cell = self._cells[i][j]
+        if not cell.has_top_wall:
+            self._cells[i - 1][j].has_bottom_wall = True
+            self._draw_cell(i - 1, j)
+        elif not cell.has_bottom_wall:
+            self._cells[i + 1][j].has_top_wall = True
+            self._draw_cell(i + 1, j)
+        elif not cell.has_left_wall:
+            self._cells[i][j - 1].has_right_wall = True
+            self._draw_cell(i, j - 1)
+        else:
+            self._cells[i][j + 1].has_left_wall = True
+            self._draw_cell(i, j + 1)
 
     def _animate(self, amount=0.05):
         if self._win is None:

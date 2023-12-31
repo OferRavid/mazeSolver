@@ -63,6 +63,20 @@ class Tests(unittest.TestCase):
         for cells in m1._cells:
             for cell in cells:
                 self.assertFalse(cell.visited)
+    
+
+    def test_dfs_solve(self):
+        num_cols = 12
+        num_rows = 10
+        m1 = Maze(0, 0, num_rows, num_cols, 10, 10, seed=10)
+        self.assertTrue(m1.dfs_solve())
+    
+
+    def test_dead_end_solve(self):
+        num_cols = 12
+        num_rows = 10
+        m1 = Maze(0, 0, num_rows, num_cols, 10, 10, seed=10)
+        self.assertTrue(m1.dead_end_solve())
 
 
 if __name__ == "__main__":

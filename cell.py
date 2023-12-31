@@ -30,6 +30,8 @@ class Cell:
         self._draw_wall(bottom_wall, self.has_bottom_wall)
     
     def _draw_wall(self, wall, has_wall):
+        if self._win is None:
+            return
         color = "black"
         if not has_wall:
             color = "white"
@@ -46,3 +48,19 @@ class Cell:
             Point((to_cell._x1 + to_cell._x2) / 2, (to_cell._y1 + to_cell._y2) / 2)
         )
         self._win.draw_line(move, color)
+    
+    def is_dead_end(self):
+        walls = [
+            self.has_bottom_wall, 
+            self.has_left_wall, 
+            self.has_right_wall, 
+            self.has_top_wall
+        ]
+        filter_walls = list(filter(lambda x: x == False, walls))
+        return len(filter_walls) == 1
+    
+    def close_walls(self):
+        self.has_left_wall = True
+        self.has_right_wall = True
+        self.has_top_wall = True
+        self.has_bottom_wall = True

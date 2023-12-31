@@ -58,6 +58,9 @@ class Window:
     
     def draw_line(self, line: Line, fill_color="black"):
         line.draw(self.__canvas, fill_color)
+
+    def draw_rectangle(self, x1, y1, x2, y2):
+        self.__canvas.create_rectangle(x1, y1, x2, y2, fill="black")
     
     def wait_for_close(self):
         self.__running = True
