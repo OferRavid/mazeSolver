@@ -193,6 +193,7 @@ class Maze:
                         dead_ends += 1
                         self._handle_neighbor(i, j)
                         cell.close_walls()
+                        self._animate(0.02)
                         if self._win:
                             self._win.draw_rectangle(cell._x1, cell._y1, cell._x2, cell._y2)
                         self._draw_cell(i, j)
