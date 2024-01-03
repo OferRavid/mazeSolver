@@ -183,38 +183,57 @@ class Maze:
     
     def dead_end_solve(self):
         self._reset_cells_visited()
-        dead_ends = float("inf")
-        while dead_ends > 0:
-            dead_ends = 0
-            for i in range(self._num_rows):
-                for j in range(self._num_cols):
-                    cell = self._cells[i][j]
-                    if cell.is_dead_end():
-                        dead_ends += 1
-                        self._handle_neighbor(i, j)
-                        cell.close_walls()
-                        self._animate(0.02)
-                        if self._win:
-                            self._win.draw_rectangle(cell._x1, cell._y1, cell._x2, cell._y2)
-                        self._draw_cell(i, j)
+        # dead_ends = float("inf")
+        # while dead_ends > 0:
+        #     dead_ends = 0
+        #     for i in range(self._num_rows):
+        #         for j in range(self._num_cols):
+        #             cell = self._cells[i][j]
+        #             if cell.is_dead_end():
+        #                 dead_ends += 1
+        #                 self._handle_neighbor(i, j)
+        #                 cell.close_walls()
+        #                 self._animate(0.02)
+        #                 if self._win:
+        #                     self._win.draw_rectangle(cell._x1, cell._y1, cell._x2, cell._y2)
+        #                 self._draw_cell(i, j)
+        for i in range(self._num_rows):
+            for j in range(self._num_cols):
+                cell = self._cells[i][j]
+                if cell.is_dead_end():
+                    self._handle_neighbor(i, j)
+                    cell.close_walls()
+                    self._animate(0.02)
+                    if self._win:
+                        self._win.draw_rectangle(cell._x1, cell._y1, cell._x2, cell._y2)
+                    # self._draw_cell(i, j)
         if self._solve_r(0, 0):
             return True
         return False
     
     def _handle_neighbor(self, i, j):
         cell = self._cells[i][j]
+        new_i = i
+        new_j = j
         if not cell.has_top_wall:
-            self._cells[i - 1][j].has_bottom_wall = True
-            self._draw_cell(i - 1, j)
+            new_i -= 1
+            self._cells[new_i][new_j].has_bottom_wall = True
         elif not cell.has_bottom_wall:
-            self._cells[i + 1][j].has_top_wall = True
-            self._draw_cell(i + 1, j)
+            new_i += 1
+            self._cells[new_i][new_j].has_top_wall = True
         elif not cell.has_left_wall:
-            self._cells[i][j - 1].has_right_wall = True
-            self._draw_cell(i, j - 1)
+            new_j -= 1
+            self._cells[new_i][new_j].has_right_wall = True
         else:
-            self._cells[i][j + 1].has_left_wall = True
-            self._draw_cell(i, j + 1)
+            new_j += 1
+            self._cells[new_i][new_j].has_left_wall = True
+        if self._cells[new_i][new_j].is_dead_end():
+            self._handle_neighbor(new_i, new_j)
+            self._cells[new_i][new_j].close_walls()
+        self._animate(0.02)
+        if self._win:
+            self._win.draw_rectangle(cell._x1, cell._y1, cell._x2, cell._y2)
+        # self._draw_cell(new_i, new_j)
 
     def _animate(self, amount=0.05):
         if self._win is None:
