@@ -77,6 +77,9 @@ class Window:
     def get_root(self):
         return self.__root
     
+    def get_canvas(self):
+        return self.__canvas
+    
     def get_bottom_frame(self):
         return self.__bottom
     

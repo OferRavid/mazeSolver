@@ -59,13 +59,23 @@ class Maze:
             clear_button = Button(self._win.get_root(), text="Clear", width=6, height=2, command=self._win.clear_canvas)
             clear_button.pack(in_=self._win.get_bottom2_frame(), side=RIGHT)
             l.pack(in_=self._win.get_bottom2_frame(), side=LEFT)
+            self.__canvas = self._win.get_canvas()
+            self.error_message = self.__canvas.create_text(self._win.width / 2, self._win.height / 2, text="", fill="darkred")
 
     def create_maze(self):
+        self.__canvas.itemconfig(self.error_message, text="")
         if self._cells:
             self._win.clear_canvas()
             self._cells = []
         num_cols = int(self.enter_num_cols.get())
         num_rows = int(self.enter_num_rows.get())
+        if num_cols >= 45 or num_rows >= 45:
+            self.error_message = self.__canvas.create_text(
+                self._win.width / 2, 
+                self._win.height / 2, 
+                text="Maze is too big.\n Please make sure that number of rows\nand number of columns are less than 45.", 
+                fill="darkred")
+            raise Exception("Maze is too big.\n Please make sure that number of rows and number of columns are less than 45.")
         self._cell_size_x = (self._win.width - 2 * self._x1) / num_cols
         self._cell_size_y = (self._win.height - 2 * self._y1) / num_rows
         self._num_cols = num_cols
